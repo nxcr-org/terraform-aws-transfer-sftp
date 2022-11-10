@@ -10,19 +10,13 @@ locals {
   user_names_map = {
     for user, val in var.sftp_users :
     user => merge(val, {
-      s3_bucket_arn = lookup(val, "s3_bucket_name", null) != null ? "${local.s3_arn_prefix}${lookup(val, "s3_bucket_name")}" : one(data.aws_s3_bucket.landing[*].arn)
+      s3_bucket_arn = "${local.s3_arn_prefix}${lookup(val, "s3_bucket_name")}"
     })
   }
 }
 
 data "aws_partition" "default" {
   count = local.enabled ? 1 : 0
-}
-
-data "aws_s3_bucket" "landing" {
-  count = local.enabled ? 1 : 0
-
-  bucket = var.s3_bucket_name
 }
 
 resource "aws_transfer_server" "default" {
