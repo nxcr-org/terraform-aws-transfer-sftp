@@ -10,7 +10,7 @@ locals {
   user_names_map = {
     for user, val in var.sftp_users :
     user => merge(val, {
-      s3_bucket_arn = "${local.s3_arn_prefix}${lookup(val, "s3_bucket_name")}"
+      s3_bucket_arn = "${local.s3_arn_prefix}${var.s3_bucket_name}"
     })
   }
 }
