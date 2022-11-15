@@ -59,10 +59,10 @@ resource "aws_transfer_user" "default" {
     for_each = var.restricted_home ? (
       lookup(each.value, "home_directory_mappings", null) != null ? lookup(each.value, "home_directory_mappings") : [
         {
-          entry = "/"
+          entry = "/",
           # Specifically do not use $${Transfer:UserName} since subsequent terraform plan/applies will try to revert
           # the value back to $${Tranfer:*} value
-          target = format("/%s/%s", lookup(each.value, "s3_bucket_name", var.s3_bucket_name), each.value.user_name)
+          target = target = format("/%s%s", lookup(each.value, "s3_bucket_name", var.s3_bucket_name), each.value.home_directory_target)
         }
       ]
     ) : toset([])
@@ -164,7 +164,7 @@ data "aws_iam_policy_document" "s3_access_for_sftp_users" {
     ]
 
     resources = [
-      var.restricted_home ? "${each.value.s3_bucket_arn}/${each.value.user_name}/*" : "${each.value.s3_bucket_arn}/*"
+      var.restricted_home ? "${each.value.s3_bucket_arn}${each.value.home_directory_target}/*" : "${each.value.s3_bucket_arn}/*"
     ]
   }
 }
